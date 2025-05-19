@@ -64,5 +64,8 @@ https://vulkan-tutorial.com/en/Development_environment
 
 
 
-CHAPTER 3: Making base code, pretty self explanatory no need to go into detail.  
+CHAPTER 3: Making base code, pretty self explanatory no need to go into detail. 
+
+
+CHAPTER 4: Making an instance  
 
