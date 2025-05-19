@@ -1,0 +1,68 @@
+Here to take notes of stuff that I find interesting/useful from the tutorial
+- because of vulkan being so verbose we'll need to make some helper functions to speed things along, however we should be careful to try and review these on our own time
+  to make sure we understand what is happening under the hood
+
+
+
+Chapter 1 overview: 
+
+- go over what it takes to draw a triangle and setting shit up 
+- vulkan exists to provide a couple main features 
+	- built with modern architecture in mind 
+	- reduce driver overhead 
+	- introduce multi threading to help ease the cpu bottleneck that you'd see in something like opengl (doesn't make opengl bad but that was a weak point)
+	- uses a single compiler as well for simplification (uses clang compiler for c++)
+	- puts graphics functionality and compute into a single api, so you don't need to introduce a bunch of dependencies 
+- steps to draw a triangle at a high level
+	- start by setting up api throiguh vkInstance, created by describing applications and extensions used
+	- create the instance, quert for vulakn support hardware and select one or more vkPhysicalDevice s to use for operatoins 
+	- these queries can also be used to specify for things like VRAM, and select desired devices like dedicated or integrated
+	- Once you set the correct physical device you need to create a logical connection VkDevice, describe which VkPhysiucalDeviceFeatures you'll be using, like floating point lenght
+	- also nbeed to specigy which queue families you're gonna be using
+	- operations in vulkan like draw and memory operations are execyted asynchronously by submitting to VkQueue. 
+	- queues allocated from queue families, family provides set of operations in its queue
+		- for example Queue A can provide draw calls while B provides instancing, so to make a draw call you push to A and B for instancing
+	- availability of queue families could also be used as a distinguishing factor in physical device selection 
+	- usuallu not an issue if they support vulkan then you'll have most operations available to you
+	- you have to make a window lmao, usually can just do this through glfw, don't do this from scratch, that would be painful
+		- need a window surface and swap chain,, VkSurfaceKHR and VkSwapChainKHR (KHR means extension of vulkan) 
+		- being platform agnostic means  we need to use an extension to interact with the window manager (GLFW handles most of this for us)
+		- what's a swap chain?
+			- collection of render targets, ensures image we render is different from the one on screen every time we draw a frame have to ask the swap chain to give us an image to render to
+			- swap chain is the vulkan abstraction of frame buffers that are on graphics hardware 
+	- whne we draw and image we have to wrap it ino a VkImageView and VkFrameBuffer, image view references the part of the image used, framebuffer regerence simage views to be used for colour depth and stencil targets (think of the 453 notes)
+	- since there can be multiple images in the chain we need to preemptively create an image view and biufer for each of thema and select the correct one at draw time
+	- render passes: describes the type of images that are used during rendering operations, how they;re used and how their contents should be treated. 
+	- set up graphics pipeline using a VkPipeline object. Describes the configurable state of gpu, like viewpoert size depth buffer operation and programmable state using VkShaderModule
+	- confiuration of the graphics pipeline needs to be specified in advance (which is a little weird), state must be explicit (I likey) -> allows for compiler optimizations to be made
+	- Command pools and buffers: 
+		- operations need to be recored intro a VkCommandBuffer, command buffers allocated from a VkCommandPool, that's assoicated with a queue family. to draw a triangle you'd need to: 
+			- begin render pass 
+			- bind the graphics pipeline (explicitly describe the state)
+			- draw the three vertices (vulkan seems to be triangle based, similar ot opengl) 
+			- end the render pass
+	- Main Loop: 
+		- when wrapped into command buffer loop is straightforward
+		- acquire image from the swap chain with vkAcquireNextImageKHR 
+		- select the command buffer for that image, execute with vkQueueSubmit
+		- return to the swap chain, use vkQueuePresentKHR
+		- IMPORTANT: these commands sent to the queues are executed asynchronously, so we have to synchronize with semaphores and mutexes
+	CODING CONVENTIONS: 
+	- vulkan functions, enums and structs in vulkhan.h
+	-functions are lowercase vk, structs have Vk, enums have VK_
+	- use structs to provide parameters to funcs (similar to waht we learned at work this past week May 2025)
+	- structs in vulkan require to specify type in sType field, pNext can point to extension structure (null a lot of the time)
+	- funcs that create/destroy objects will have a VkAllocationCallbacks parameters that allows for programmer to use a custome allocator for driver memory, can also be left null if we're fine with the default
+	VALIDATION LAYERS: 
+	- little error checking done for you, so checks are done throguh validation layers, piecves of code inserted between api and gpu to do things like run extra checks on function params and track mem maanagement problems 
+	- almost likea debug mode you can toggle in test and disable when you deploy to prod
+
+
+Setting up the dev environment: Gonna just paste the url here since I don't wanna take notes for this bullshit
+https://vulkan-tutorial.com/en/Development_environment
+
+
+
+
+CHAPTER 3: Making base code, pretty self explanatory no need to go into detail.  
+
