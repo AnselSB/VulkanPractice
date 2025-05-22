@@ -69,3 +69,11 @@ CHAPTER 3: Making base code, pretty self explanatory no need to go into detail.
 
 CHAPTER 4: Making an instance  
 
+CHAPTER 5: Validation layers
+- don't use device specific validation layers, they have been deprecated 
+- can replicate the same behaviour of them with logical device level
+- just learned about static_cast, good to know
+
+
+
+
