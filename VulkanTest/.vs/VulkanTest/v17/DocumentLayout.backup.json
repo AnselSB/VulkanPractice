@@ -1,10 +1,10 @@
 {
   "Version": 1,
-  "WorkspaceRootPath": "C:\\Users\\Ansel\\Documents\\GitHub\\VulkanPractice\\VulkanTest\\",
+  "WorkspaceRootPath": "C:\\Users\\Ansel\\Documents\\Github\\VulkanPractice\\VulkanTest\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{2C77BDAC-945B-4178-BFBE-3C86A45CAEF8}|VulkanTest\\VulkanTest.vcxproj|C:\\Users\\Ansel\\Documents\\GitHub\\VulkanPractice\\VulkanTest\\VulkanTest\\Main.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
-      "RelativeMoniker": "D:0:0:{2C77BDAC-945B-4178-BFBE-3C86A45CAEF8}|VulkanTest\\VulkanTest.vcxproj|solutionrelative:VulkanTest\\Main.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+      "AbsoluteMoniker": "D:0:0:{EDE79AA6-0DBC-4561-A43C-6E9C4541946E}|VulkanTest\\VulkanTest.vcxproj|C:\\Users\\Ansel\\Documents\\Github\\VulkanPractice\\VulkanTest\\VulkanTest\\Main.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{EDE79AA6-0DBC-4561-A43C-6E9C4541946E}|VulkanTest\\VulkanTest.vcxproj|solutionrelative:VulkanTest\\Main.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     }
   ],
   "DocumentGroupContainers": [
@@ -13,6 +13,7 @@
       "VerticalTabListWidth": 256,
       "DocumentGroups": [
         {
+          "DockedWidth": 200,
           "SelectedChildIndex": 1,
           "Children": [
             {
@@ -23,13 +24,13 @@
               "$type": "Document",
               "DocumentIndex": 0,
               "Title": "Main.cpp",
-              "DocumentMoniker": "C:\\Users\\Ansel\\Documents\\GitHub\\VulkanPractice\\VulkanTest\\VulkanTest\\Main.cpp",
+              "DocumentMoniker": "C:\\Users\\Ansel\\Documents\\Github\\VulkanPractice\\VulkanTest\\VulkanTest\\Main.cpp",
               "RelativeDocumentMoniker": "VulkanTest\\Main.cpp",
-              "ToolTip": "C:\\Users\\Ansel\\Documents\\GitHub\\VulkanPractice\\VulkanTest\\VulkanTest\\Main.cpp",
+              "ToolTip": "C:\\Users\\Ansel\\Documents\\Github\\VulkanPractice\\VulkanTest\\VulkanTest\\Main.cpp",
               "RelativeToolTip": "VulkanTest\\Main.cpp",
-              "ViewState": "AgIAAFAAAAAAAAAAAAAAAGYAAAA6AAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
-              "WhenOpened": "2025-05-19T22:15:20.091Z",
+              "WhenOpened": "2025-09-12T19:24:55.877Z",
               "EditorCaption": ""
             }
           ]
