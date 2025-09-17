@@ -5,11 +5,22 @@
 #include <stdexcept>
 #include <cstdlib>
 #include <vector>
-
+#include <cstring>
 
 
 const uint32_t WIDTH = 800;
 const uint32_t HEIGHT = 600;
+// validation layers constants that will be useful
+#ifdef NDEBUG
+const bool enableValidationLayers = false;
+#else 
+const bool enableValidationLayers = true;
+#endif 
+
+const std::vector<const char*> validationLayers = {
+	"VK_LAYER_KHRONOS_validation"
+};
+
 void HelloTriangleApplication::run() {
 	this->initWindow();
 	this->initVulkan();
@@ -18,7 +29,13 @@ void HelloTriangleApplication::run() {
 }
 
 void HelloTriangleApplication::createInstance() {
+
+	if (enableValidationLayers && !checkValidationLayerSupport()) {
+		throw std::runtime_error("Validation layers requested but are not available on this machine.");
+	}
+	
 	// specifying some extra information to the driver to optimize our application
+	
 	VkApplicationInfo appInfo{};
 	appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
 	appInfo.pApplicationName = "Hello triangle woah";
@@ -30,23 +47,34 @@ void HelloTriangleApplication::createInstance() {
 	VkInstanceCreateInfo createInfo{};
 	createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
 	createInfo.pApplicationInfo = &appInfo;
+	
 	// we need to pass throw global extensions for window managementn glfw makes this a bit simpler for us
+	
 	uint32_t glfwExtensionCount = 0;
 	const char** glfwExtensions;
 	glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
 
 	createInfo.enabledExtensionCount = glfwExtensionCount;
 	createInfo.ppEnabledExtensionNames = glfwExtensions;
+	
 	// keep this empty for right now
-	createInfo.enabledLayerCount = 0;
-
+	if (enableValidationLayers) {
+		createInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
+		createInfo.ppEnabledLayerNames = validationLayers.data();
+	}
+	else {		
+		createInfo.enabledLayerCount = 0;
+	}
+	
 	// before we create the instance we first want to check to see what extensions are available to us
+
 	uint32_t extensionCount = 0;
 	vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, nullptr);
 	std::vector<VkExtensionProperties> extensions(extensionCount);
 	vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, extensions.data());
 	std::cout << "Accepted extensions" << std::endl;
-	for (const auto &extension : extensions) { // remember that c++ has for-each loops now
+	
+	for (const auto& extension : extensions) { // remember that c++ has for-each loops now
 		std::cout << "\t" << extension.extensionName << '\n'; // doing '\n' is actually better than endl since endl also flushes the stream
 	}
 
@@ -89,6 +117,26 @@ void HelloTriangleApplication::initWindow() {
 	glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 	glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 	window = glfwCreateWindow(WIDTH, HEIGHT, "this is a title", nullptr, nullptr);
+}
 
+bool HelloTriangleApplication::checkValidationLayerSupport() {
+	uint32_t validationCount = 0;
+	vkEnumerateInstanceLayerProperties(&validationCount, nullptr);
 
+	std::vector<VkLayerProperties> availableLayers(validationCount);
+	vkEnumerateInstanceLayerProperties(&validationCount, availableLayers.data());
+	
+	for (auto& validationLayer : validationLayers) {
+		bool entryFlag = false;
+		for (auto& available : availableLayers) {
+			if (std::strcmp(available.layerName, validationLayer) == 0) {
+				entryFlag = true;
+				break;
+			}	
+		}
+		if (!entryFlag) {
+			return false;
+		}
+	}
+	return true;
 }
