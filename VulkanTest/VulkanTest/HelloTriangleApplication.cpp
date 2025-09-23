@@ -6,7 +6,8 @@
 #include <cstdlib>
 #include <vector>
 #include <cstring>
-
+#include <map>
+#include <optional>
 
 const uint32_t WIDTH = 800;
 const uint32_t HEIGHT = 600;
@@ -40,10 +41,6 @@ void DestroyDebugUtilsMessengerEXT(VkInstance instance, VkDebugUtilsMessengerEXT
 		func(instance, debugMessenger, pAllocator);
 	}
 }
-
-
-
-
 
 void HelloTriangleApplication::run() {
 	this->initWindow();
@@ -117,6 +114,8 @@ void HelloTriangleApplication::initVulkan() {
 	// making an instance, this is connection between vulkan and this application
 	createInstance();
 	setupDebugMessenger();
+	pickPhysicalDevice();
+	createLogicalDevice();
 }
 
 
@@ -212,14 +211,30 @@ std::vector<const char*>HelloTriangleApplication::getRequiredExtensions() {
 	return extensions;
 }
 
-bool HelloTriangleApplication::isDeviceSuitable(VkPhysicalDevice device) {
+int HelloTriangleApplication::getDeviceScore(VkPhysicalDevice device) {
 	// get the device properties
 	VkPhysicalDeviceProperties deviceProps;
 	VkPhysicalDeviceFeatures deviceFeats;
 	vkGetPhysicalDeviceProperties(device, &deviceProps);
 	vkGetPhysicalDeviceFeatures(device, &deviceFeats);
 	
-	return deviceProps.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU && deviceFeats.geometryShader; 
+	int score = 0;
+	// discrete gpus are goated so we should weight them highly
+	if (deviceProps.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU) {
+		score += 1000;
+	}
+
+	score += deviceProps.limits.maxImageDimension2D;
+
+	// need geometry shader support for now
+	if (!deviceFeats.geometryShader) {
+		return 0;
+	}
+	if (!findQueueFamilies(device).isComplete()) {
+		return 0;
+	}
+
+	return score;
 }
 
 
@@ -232,20 +247,52 @@ void HelloTriangleApplication::pickPhysicalDevice() {
 	if (deviceCount == 0) {
 		throw std::runtime_error("No valid gpu's were found");
 	}
+
 	std::vector<VkPhysicalDevice> physicalDevices(deviceCount);
 	// remember data returns the direct pointer, which means it's returning the underlying array of the vector
 	// because in c array == pointer
 	vkEnumeratePhysicalDevices(instance, &deviceCount, physicalDevices.data());
-	// check to see if there exists a suitable device
+	
+	std::multimap<int, VkPhysicalDevice>candidates;
 	for (auto device : physicalDevices) {
-		if (isDeviceSuitable(device)) {
-			physicalDevice = device;
-			break; // find the first suitable gpu
-		}
+		candidates.insert(std::make_pair(getDeviceScore(device), device));
 	}
-	if (physicalDevice == VK_NULL_HANDLE) {
+	if (candidates.rbegin()->first > 0) {
+		physicalDevice = candidates.rbegin()->second;
+	}
+	else {
 		throw std::runtime_error("unable to find a suitable gpu device");
 	}
+
+}
+
+void HelloTriangleApplication::createLogicalDevice() {
+
+	
+}
+
+QueueFamilyIndices HelloTriangleApplication::findQueueFamilies(VkPhysicalDevice device) {
+	QueueFamilyIndices indices;
+	uint32_t queueFamilyCount = 0;
+	vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, nullptr);
+	std::vector<VkQueueFamilyProperties> families(queueFamilyCount);
+	vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, families.data());
+
+	int i = 0;
+	for (const auto &family : families) {
+	
+		if (family.queueFlags & VK_QUEUE_GRAPHICS_BIT) {
+			indices.graphicsFamily = i;
+		}
+		if (indices.isComplete()) {
+			break;
+		}
+		i++;
+	}
+
+	return indices;
+
+
 
 }
 

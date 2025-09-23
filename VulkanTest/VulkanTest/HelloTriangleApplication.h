@@ -6,12 +6,24 @@
 #include <stdexcept>
 #include <cstdlib>
 #include <vector>
+#include <optional>
+
+struct QueueFamilyIndices {
+    std::optional<uint32_t> graphicsFamily;
+    
+    bool isComplete() {
+        return graphicsFamily.has_value();
+    }
+};
+
 
 class HelloTriangleApplication {
 public:
     void run();
 
     std::vector<const char*> getRequiredExtensions();
+
+    VkDevice device;
 
 private:
     
@@ -39,9 +51,13 @@ private:
 
     void pickPhysicalDevice();
 
-    bool isDeviceSuitable(VkPhysicalDevice device);
+    int getDeviceScore(VkPhysicalDevice device);
 
-    VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
+    void createLogicalDevice();
+
+    QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device);
+
+    VkPhysicalDevice physicalDevice = VK_NULL_HANDLE; 
 
     // I will have to look over this another time, I am too tired
     static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(

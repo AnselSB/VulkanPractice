@@ -3,12 +3,12 @@
   "WorkspaceRootPath": "C:\\Users\\Ansel\\Documents\\Github\\VulkanPractice\\VulkanTest\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{EDE79AA6-0DBC-4561-A43C-6E9C4541946E}|VulkanTest\\VulkanTest.vcxproj|C:\\Users\\Ansel\\Documents\\Github\\VulkanPractice\\VulkanTest\\VulkanTest\\HelloTriangleApplication.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
-      "RelativeMoniker": "D:0:0:{EDE79AA6-0DBC-4561-A43C-6E9C4541946E}|VulkanTest\\VulkanTest.vcxproj|solutionrelative:VulkanTest\\HelloTriangleApplication.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{EDE79AA6-0DBC-4561-A43C-6E9C4541946E}|VulkanTest\\VulkanTest.vcxproj|C:\\Users\\Ansel\\Documents\\Github\\VulkanPractice\\VulkanTest\\VulkanTest\\HelloTriangleApplication.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
       "RelativeMoniker": "D:0:0:{EDE79AA6-0DBC-4561-A43C-6E9C4541946E}|VulkanTest\\VulkanTest.vcxproj|solutionrelative:VulkanTest\\HelloTriangleApplication.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{EDE79AA6-0DBC-4561-A43C-6E9C4541946E}|VulkanTest\\VulkanTest.vcxproj|C:\\Users\\Ansel\\Documents\\Github\\VulkanPractice\\VulkanTest\\VulkanTest\\HelloTriangleApplication.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{EDE79AA6-0DBC-4561-A43C-6E9C4541946E}|VulkanTest\\VulkanTest.vcxproj|solutionrelative:VulkanTest\\HelloTriangleApplication.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{EDE79AA6-0DBC-4561-A43C-6E9C4541946E}|VulkanTest\\VulkanTest.vcxproj|C:\\Users\\Ansel\\Documents\\Github\\VulkanPractice\\VulkanTest\\VulkanTest\\Main.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
@@ -42,13 +42,13 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 1,
               "Title": "HelloTriangleApplication.cpp",
               "DocumentMoniker": "C:\\Users\\Ansel\\Documents\\Github\\VulkanPractice\\VulkanTest\\VulkanTest\\HelloTriangleApplication.cpp",
               "RelativeDocumentMoniker": "VulkanTest\\HelloTriangleApplication.cpp",
               "ToolTip": "C:\\Users\\Ansel\\Documents\\Github\\VulkanPractice\\VulkanTest\\VulkanTest\\HelloTriangleApplication.cpp",
               "RelativeToolTip": "VulkanTest\\HelloTriangleApplication.cpp",
-              "ViewState": "AgIAAIUAAAAAAAAAAAAvwLYAAABLAAAAAAAAAA==",
+              "ViewState": "AgIAAPEAAAAAAAAAAAAAAP4AAAAmAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
               "WhenOpened": "2025-09-17T02:47:10.791Z",
               "EditorCaption": ""
@@ -61,13 +61,13 @@
           "Children": [
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 0,
               "Title": "HelloTriangleApplication.h",
               "DocumentMoniker": "C:\\Users\\Ansel\\Documents\\Github\\VulkanPractice\\VulkanTest\\VulkanTest\\HelloTriangleApplication.h",
               "RelativeDocumentMoniker": "VulkanTest\\HelloTriangleApplication.h",
               "ToolTip": "C:\\Users\\Ansel\\Documents\\Github\\VulkanPractice\\VulkanTest\\VulkanTest\\HelloTriangleApplication.h",
               "RelativeToolTip": "VulkanTest\\HelloTriangleApplication.h",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAACUAAAAgAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAsAAAARAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
               "WhenOpened": "2025-09-17T02:09:14.538Z",
               "EditorCaption": ""
