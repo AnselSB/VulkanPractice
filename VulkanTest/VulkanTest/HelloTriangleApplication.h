@@ -37,6 +37,12 @@ private:
 
     void populateMessengerCreate(VkDebugUtilsMessengerCreateInfoEXT* createInfo);
 
+    void pickPhysicalDevice();
+
+    bool isDeviceSuitable(VkPhysicalDevice device);
+
+    VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
+
     // I will have to look over this another time, I am too tired
     static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
         VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,

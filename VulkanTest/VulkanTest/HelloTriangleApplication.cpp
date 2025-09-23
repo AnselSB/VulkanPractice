@@ -212,6 +212,43 @@ std::vector<const char*>HelloTriangleApplication::getRequiredExtensions() {
 	return extensions;
 }
 
+bool HelloTriangleApplication::isDeviceSuitable(VkPhysicalDevice device) {
+	// get the device properties
+	VkPhysicalDeviceProperties deviceProps;
+	VkPhysicalDeviceFeatures deviceFeats;
+	vkGetPhysicalDeviceProperties(device, &deviceProps);
+	vkGetPhysicalDeviceFeatures(device, &deviceFeats);
+	
+	return deviceProps.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU && deviceFeats.geometryShader; 
+}
+
+
+void HelloTriangleApplication::pickPhysicalDevice() {
+
+	// time to query for the number of available devices, I think eventually I wanna extend this out so that a user can pick which gpu they want to use (may not be necessary tho)
+	uint32_t deviceCount = 0;
+	vkEnumeratePhysicalDevices(instance, &deviceCount, nullptr);
+	// must have at least one device otherwise nothing will run lmao
+	if (deviceCount == 0) {
+		throw std::runtime_error("No valid gpu's were found");
+	}
+	std::vector<VkPhysicalDevice> physicalDevices(deviceCount);
+	// remember data returns the direct pointer, which means it's returning the underlying array of the vector
+	// because in c array == pointer
+	vkEnumeratePhysicalDevices(instance, &deviceCount, physicalDevices.data());
+	// check to see if there exists a suitable device
+	for (auto device : physicalDevices) {
+		if (isDeviceSuitable(device)) {
+			physicalDevice = device;
+			break; // find the first suitable gpu
+		}
+	}
+	if (physicalDevice == VK_NULL_HANDLE) {
+		throw std::runtime_error("unable to find a suitable gpu device");
+	}
+
+}
+
 
 
 
