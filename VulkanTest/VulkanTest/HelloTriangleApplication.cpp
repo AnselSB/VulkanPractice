@@ -8,7 +8,7 @@
 #include <cstring>
 #include <map>
 #include <optional>
-
+#include <set>
 const uint32_t WIDTH = 800;
 const uint32_t HEIGHT = 600;
 // validation layers constants that will be useful
@@ -22,15 +22,18 @@ const std::vector<const char*> validationLayers = {
 	"VK_LAYER_KHRONOS_validation"
 };
 
+const std::vector<const char*> deviceExtensions = {
+	VK_KHR_SWAPCHAIN_EXTENSION_NAME
+};
 
 
 VkResult CreateDebugUtilsMessengerEXT(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo,
 	const VkAllocationCallbacks* pAllocator, VkDebugUtilsMessengerEXT* pDebugMessenger) {
 	auto func = (PFN_vkCreateDebugUtilsMessengerEXT)vkGetInstanceProcAddr(instance, "vkCreateDebugUtilsMessengerEXT");
 
-		if (func != nullptr) {
-			return func(instance, pCreateInfo, pAllocator, pDebugMessenger);
-		}
+	if (func != nullptr) {
+		return func(instance, pCreateInfo, pAllocator, pDebugMessenger);
+	}
 
 	return VK_ERROR_EXTENSION_NOT_PRESENT;
 }
@@ -54,9 +57,9 @@ void HelloTriangleApplication::createInstance() {
 	if (enableValidationLayers && !checkValidationLayerSupport()) {
 		throw std::runtime_error("Validation layers requested but are not available on this machine.");
 	}
-	
+
 	// specifying some extra information to the driver to optimize our application
-	
+
 	VkApplicationInfo appInfo{};
 	appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
 	appInfo.pApplicationName = "Hello triangle woah";
@@ -68,9 +71,9 @@ void HelloTriangleApplication::createInstance() {
 	VkInstanceCreateInfo createInfo{};
 	createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
 	createInfo.pApplicationInfo = &appInfo;
-	
+
 	// we need to pass throw global extensions for window managementn glfw makes this a bit simpler for us
-	
+
 	auto glfwextensions = getRequiredExtensions();
 	createInfo.enabledExtensionCount = static_cast<uint32_t>(glfwextensions.size());
 	createInfo.ppEnabledExtensionNames = glfwextensions.data();
@@ -83,14 +86,14 @@ void HelloTriangleApplication::createInstance() {
 		createInfo.ppEnabledLayerNames = validationLayers.data();
 
 		this->populateMessengerCreate(&debugCreateInfo);
-		createInfo.pNext = (VkDebugUtilsMessengerCreateInfoEXT*) &debugCreateInfo;
+		createInfo.pNext = (VkDebugUtilsMessengerCreateInfoEXT*)&debugCreateInfo;
 
 	}
-	else {		
+	else {
 		createInfo.enabledLayerCount = 0;
 		createInfo.pNext = nullptr;
 	}
-	
+
 	// before we create the instance we first want to check to see what extensions are available to us
 
 	uint32_t extensionCount = 0;
@@ -98,11 +101,11 @@ void HelloTriangleApplication::createInstance() {
 	std::vector<VkExtensionProperties> extensions(extensionCount);
 	vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, extensions.data());
 	std::cout << "Accepted extensions" << std::endl;
-	
+
 	for (const auto& extension : extensions) { // remember that c++ has for-each loops now
 		std::cout << "\t" << extension.extensionName << '\n'; // doing '\n' is actually better than endl since endl also flushes the stream
 	}
-	
+
 
 	if (vkCreateInstance(&createInfo, nullptr, &instance) != VK_SUCCESS) { // we can make this an error check function (hellloooooooo)
 		throw std::runtime_error("failed to create instance!");
@@ -114,10 +117,20 @@ void HelloTriangleApplication::initVulkan() {
 	// making an instance, this is connection between vulkan and this application
 	createInstance();
 	setupDebugMessenger();
+	createSurface();
 	pickPhysicalDevice();
 	createLogicalDevice();
 }
 
+
+void HelloTriangleApplication::createSurface() {
+	if (glfwCreateWindowSurface(instance, window, nullptr, &surface) != VK_SUCCESS) {
+		throw std::runtime_error("failed to create window surface (uhb oh that's probably really fucking bad)");
+	}	
+
+
+
+}
 
 void HelloTriangleApplication::populateMessengerCreate(VkDebugUtilsMessengerCreateInfoEXT* createInfo) {
 	createInfo->sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
@@ -156,13 +169,16 @@ void HelloTriangleApplication::cleanup() {
 		DestroyDebugUtilsMessengerEXT(instance, debugMessenger, nullptr);
 	}
 	
-	// make sure you destory the instance of vulkan that was created
-	vkDestroyInstance(instance, nullptr); // no callbacks here but if we did have one we'd have to but in in this function for de allocation
+	vkDestroyDevice(device, nullptr);
+
+	vkDestroySurfaceKHR(instance,   surface, nullptr); // this needs to be destroyed before the vulkan instance or things will go wrong
 	
+	vkDestroyInstance(instance, nullptr); // no callbacks here but if we did have one we'd have to but in in this function for de allocation
+
 	// destory the window and deallocate the memory
 	glfwDestroyWindow(window);
 	glfwTerminate();
-	
+
 }
 
 // pretty self explanatory what this does
@@ -180,14 +196,14 @@ bool HelloTriangleApplication::checkValidationLayerSupport() {
 
 	std::vector<VkLayerProperties> availableLayers(validationCount);
 	vkEnumerateInstanceLayerProperties(&validationCount, availableLayers.data());
-	
+
 	for (auto& validationLayer : validationLayers) {
 		bool entryFlag = false;
 		for (auto& available : availableLayers) {
 			if (std::strcmp(available.layerName, validationLayer) == 0) {
 				entryFlag = true;
 				break;
-			}	
+			}
 		}
 		if (!entryFlag) {
 			return false;
@@ -202,14 +218,36 @@ std::vector<const char*>HelloTriangleApplication::getRequiredExtensions() {
 	uint32_t glfwExtensionCount = 0;
 	const char** glfwExtensions;
 	glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
-	
+
 	std::vector<const char*> extensions(glfwExtensions, glfwExtensions + glfwExtensionCount);
 	if (enableValidationLayers) {
-	
+
 		extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
 	}
 	return extensions;
 }
+
+bool checkDeviceExtensionSupport(VkPhysicalDevice device) {
+	uint32_t extensionCount = 0;
+	vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, nullptr);
+	std::vector<VkExtensionProperties>availableExtensions(extensionCount);
+	vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, availableExtensions.data());
+
+	// to now check to see if we have the proper extensions make a copy of the extension vector into a set
+	// remove the names of all available extensions from the set
+	// if the required ones are in the available then the required set will be empty
+	// this is an algorithm for determining subsets I just realized
+	std::set<std::string> requiredExtensions(deviceExtensions.begin(), deviceExtensions.end());
+	for (const auto& extension : availableExtensions) {
+		requiredExtensions.erase(extension.extensionName);
+	}
+
+
+	return requiredExtensions.empty();
+}
+
+
+
 
 int HelloTriangleApplication::getDeviceScore(VkPhysicalDevice device) {
 	// get the device properties
@@ -217,7 +255,8 @@ int HelloTriangleApplication::getDeviceScore(VkPhysicalDevice device) {
 	VkPhysicalDeviceFeatures deviceFeats;
 	vkGetPhysicalDeviceProperties(device, &deviceProps);
 	vkGetPhysicalDeviceFeatures(device, &deviceFeats);
-	
+
+
 	int score = 0;
 	// discrete gpus are goated so we should weight them highly
 	if (deviceProps.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU) {
@@ -226,16 +265,21 @@ int HelloTriangleApplication::getDeviceScore(VkPhysicalDevice device) {
 
 	score += deviceProps.limits.maxImageDimension2D;
 
+	QueueFamilyIndices indices = findQueueFamilies(device);
+	bool extensionsSupported = checkDeviceExtensionSupport(device);
+
 	// need geometry shader support for now
 	if (!deviceFeats.geometryShader) {
 		return 0;
 	}
-	if (!findQueueFamilies(device).isComplete()) {
+	if (!indices.isComplete() && extensionsSupported) {
 		return 0;
 	}
 
 	return score;
 }
+
+
 
 
 void HelloTriangleApplication::pickPhysicalDevice() {
@@ -247,12 +291,12 @@ void HelloTriangleApplication::pickPhysicalDevice() {
 	if (deviceCount == 0) {
 		throw std::runtime_error("No valid gpu's were found");
 	}
-
+	
 	std::vector<VkPhysicalDevice> physicalDevices(deviceCount);
 	// remember data returns the direct pointer, which means it's returning the underlying array of the vector
 	// because in c array == pointer
 	vkEnumeratePhysicalDevices(instance, &deviceCount, physicalDevices.data());
-	
+
 	std::multimap<int, VkPhysicalDevice>candidates;
 	for (auto device : physicalDevices) {
 		candidates.insert(std::make_pair(getDeviceScore(device), device));
@@ -267,8 +311,48 @@ void HelloTriangleApplication::pickPhysicalDevice() {
 }
 
 void HelloTriangleApplication::createLogicalDevice() {
-
 	
+	QueueFamilyIndices indices = findQueueFamilies(physicalDevice);
+	
+	std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
+	std::set<uint32_t> uniqueQueueFamilies = {
+		indices.graphicsFamily.value(),
+		indices.presentFamily.value()
+	};
+
+	float queuePriority = 1.0f;
+
+	for (uint32_t queueFamily : uniqueQueueFamilies) {
+		VkDeviceQueueCreateInfo queueCreateInfo{};
+		queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+		queueCreateInfo.queueFamilyIndex = queueFamily;
+		queueCreateInfo.queueCount = 1;
+		queueCreateInfo.pQueuePriorities = &queuePriority;
+		queueCreateInfos.push_back(queueCreateInfo);
+	}
+
+	VkPhysicalDeviceFeatures deviceFeatures{};
+
+	VkDeviceCreateInfo createInfo{};
+	createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
+
+	createInfo.queueCreateInfoCount = static_cast<uint32_t>(queueCreateInfos.size());
+	createInfo.pQueueCreateInfos = queueCreateInfos.data();
+
+	if (enableValidationLayers) {
+		createInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
+		createInfo.ppEnabledLayerNames = validationLayers.data();
+	}
+	else {
+		createInfo.enabledLayerCount = 0;
+	}
+
+	if (vkCreateDevice(physicalDevice, &createInfo, nullptr, &device) != VK_SUCCESS) {
+		throw std::runtime_error("failed to create logical device!");
+	}
+
+	vkGetDeviceQueue(device, indices.graphicsFamily.value(), 0, &graphicsQueue);
+	vkGetDeviceQueue(device, indices.presentFamily.value(), 0, &presentQueue);
 }
 
 QueueFamilyIndices HelloTriangleApplication::findQueueFamilies(VkPhysicalDevice device) {
@@ -279,8 +363,12 @@ QueueFamilyIndices HelloTriangleApplication::findQueueFamilies(VkPhysicalDevice 
 	vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, families.data());
 
 	int i = 0;
-	for (const auto &family : families) {
-	
+	for (const auto& family : families) {
+		VkBool32 presentSupport = false;
+		vkGetPhysicalDeviceSurfaceSupportKHR(device, i, surface, &presentSupport);
+		if (presentSupport) {
+			indices.presentFamily = i;
+		}
 		if (family.queueFlags & VK_QUEUE_GRAPHICS_BIT) {
 			indices.graphicsFamily = i;
 		}
