@@ -16,6 +16,13 @@ struct QueueFamilyIndices {
     }
 };
 
+struct SwapChainSupportDetails {
+    VkSurfaceCapabilitiesKHR capabilities;
+    std::vector<VkSurfaceFormatKHR> formats;
+    std::vector<VkPresentModeKHR> presentModes;
+    
+};
+
 
 class HelloTriangleApplication {
 public:
@@ -27,6 +34,7 @@ public:
 
 private:
     
+    // members
     GLFWwindow* window;
 
     VkQueue graphicsQueue;
@@ -39,12 +47,29 @@ private:
 
     VkSurfaceKHR surface;
 
+    VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
+
+    VkSwapchainKHR swapChain;
+
+
+    // methods
     void initWindow();
+
+    SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device);
     
     void initVulkan();
 
     void setupDebugMessenger();
 
+
+    VkSurfaceFormatKHR chooseSwapFormat(const std::vector<VkSurfaceFormatKHR> &availableFormats);
+
+    VkPresentModeKHR choosePresentMode(const std::vector<VkPresentModeKHR>& availableModes);
+
+    VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR &capabilities);
+
+    void createSwapChain();
+    
     void mainLoop();
 
     void cleanup();
@@ -65,7 +90,7 @@ private:
 
     QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device);
 
-    VkPhysicalDevice physicalDevice = VK_NULL_HANDLE; 
+    
 
     // I will have to look over this another time, I am too tired
     static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
