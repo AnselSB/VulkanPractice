@@ -51,6 +51,13 @@ private:
 
     VkSwapchainKHR swapChain;
 
+    std::vector<VkImage> swapChainImages;
+
+    VkFormat swapChainImageFormat;
+
+    VkExtent2D swapChainExtent;
+
+    std::vector<VkImageView> swapChainImageViews;
 
     // methods
     void initWindow();
@@ -90,7 +97,11 @@ private:
 
     QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device);
 
-    
+    void createImageViews(); 
+
+    void createGraphicsPipeline();
+
+    VkShaderModule createShaderModule(const std::vector<char> &code);
 
     // I will have to look over this another time, I am too tired
     static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(

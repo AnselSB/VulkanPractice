@@ -12,6 +12,7 @@
 #include <cstdint> 
 #include <limits> 
 #include <algorithm> 
+#include <fstream>
 const uint32_t WIDTH = 800;
 const uint32_t HEIGHT = 600;
 // validation layers constants that will be useful
@@ -123,6 +124,8 @@ void HelloTriangleApplication::initVulkan() {
 	createSurface();
 	pickPhysicalDevice();
 	createLogicalDevice();
+	createImageViews();
+	createGraphicsPipeline();
 }
 
 
@@ -168,6 +171,11 @@ void HelloTriangleApplication::mainLoop() {
 }
 
 void HelloTriangleApplication::cleanup() {
+	
+	for (auto imageView : swapChainImageViews) {
+		vkDestroyImageView(device, imageView, nullptr);
+	}
+	
 	if (enableValidationLayers == true) {
 		DestroyDebugUtilsMessengerEXT(instance, debugMessenger, nullptr);
 	}
@@ -183,6 +191,7 @@ void HelloTriangleApplication::cleanup() {
 	// destory the window and deallocate the memory
 	glfwDestroyWindow(window);
 	glfwTerminate();
+
 
 }
 
@@ -470,9 +479,11 @@ void HelloTriangleApplication::createSwapChain() {
 	SwapChainSupportDetails chainSupport = querySwapChainSupport(physicalDevice);
 
 	VkSurfaceFormatKHR surfaceFmt = chooseSwapFormat(chainSupport.formats);
+	swapChainImageFormat = surfaceFmt.format;
+
 	VkPresentModeKHR presentMode = choosePresentMode(chainSupport.presentModes);
 	VkExtent2D windowExtent = chooseSwapExtent(chainSupport.capabilities);
-
+	swapChainExtent = windowExtent;
 	uint32_t imageCount = std::clamp(chainSupport.capabilities.minImageCount + 1, chainSupport.capabilities.minImageCount, chainSupport.capabilities.maxImageCount);
 
 	// time to fill out some structs (whoooooooo)
@@ -488,6 +499,7 @@ void HelloTriangleApplication::createSwapChain() {
 
 	QueueFamilyIndices indices = findQueueFamilies(physicalDevice);
 	uint32_t queueFamilyIndices[] = { indices.graphicsFamily.value(), indices.presentFamily.value() };
+
 	if (indices.graphicsFamily != indices.presentFamily) {
 		createInfo.imageSharingMode = VK_SHARING_MODE_CONCURRENT;
 		createInfo.queueFamilyIndexCount = 2;
@@ -508,7 +520,83 @@ void HelloTriangleApplication::createSwapChain() {
 	if (vkCreateSwapchainKHR(device, &createInfo, nullptr, &swapChain) != VK_SUCCESS) {
 		throw std::runtime_error("failed to create the swap chain!");
 	}
+
+	vkGetSwapchainImagesKHR(device, swapChain, &imageCount, nullptr); 
+	swapChainImages.resize(imageCount);
+	vkGetSwapchainImagesKHR(device, swapChain, &imageCount, swapChainImages.data());
+
 }
 
 
+void HelloTriangleApplication::createImageViews() {
+	swapChainImageViews.resize(swapChainImages.size());
+	for (size_t i = 0; i < swapChainImages.size(); ++i) {
+		VkImageViewCreateInfo createInfo{};
+		createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+		createInfo.image = swapChainImages[i];
+		createInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+		createInfo.format = swapChainImageFormat;
 
+		// these can be changed to create differrent post processing effects
+		createInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
+		createInfo.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
+		createInfo.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
+		createInfo.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
+
+		// determines how our image will be used in this case a 2d texture
+		createInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+		createInfo.subresourceRange.baseMipLevel = 0;
+		createInfo.subresourceRange.levelCount = 1;
+		createInfo.subresourceRange.baseArrayLayer = 0;
+		createInfo.subresourceRange.layerCount = 1;
+		if (vkCreateImageView(device, &createInfo, nullptr, &swapChainImageViews[i]) != VK_SUCCESS) {
+			throw std::runtime_error("Failed to create image views");
+		}
+	}
+
+}
+
+
+void HelloTriangleApplication::createGraphicsPipeline() {
+	auto vertShaderCode = readFile("shaders/vert.spv");
+	auto fragShaderCode = readFile("shaders/frag.spv");
+
+	VkShaderModule vertModule = createShaderModule(vertShaderCode);
+	VkShaderModule fragModule = createShaderModule(fragShaderCode);
+
+
+
+
+
+	// always remeber to destroy any instances you make 
+	vkDestroyShaderModule(device, vertModule, nullptr);
+	vkDestroyShaderModule(device, fragModule, nullptr);
+
+}
+
+
+static std::vector<char> readFile(const std::string& fileName) {
+	std::ifstream file(fileName, std::ios::ate | std::ios::binary);
+	if (!file.is_open()) {
+		throw std::runtime_error("failed to open file!");
+	}
+	size_t fileSize = (size_t)file.tellg();
+	std::vector<char> buffer(fileSize);
+	file.seekg(0);
+	file.read(buffer.data(), fileSize);
+	file.close();
+	return buffer;
+}
+
+VkShaderModule HelloTriangleApplication::createShaderModule(const std::vector<char> &code) {
+	VkShaderModuleCreateInfo createInfo{};
+	createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
+	createInfo.codeSize = code.size();
+	createInfo.pCode = reinterpret_cast<const uint32_t*>(code.data());
+	VkShaderModule shaderModule;
+	if (vkCreateShaderModule(device, &createInfo, nullptr, &shaderModule) != VK_SUCCESS) {
+		throw std::runtime_error("unable to create shader module");
+	}
+	return shaderModule;
+
+}
