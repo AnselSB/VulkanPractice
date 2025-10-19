@@ -59,6 +59,25 @@ private:
 
     std::vector<VkImageView> swapChainImageViews;
 
+    VkRenderPass renderPass;
+
+    VkPipelineLayout pipelineLayout;
+
+    VkPipeline graphicsPipeline;
+
+    std::vector<VkFramebuffer> swapChainFrameBuffers;
+
+    VkCommandPool commandPool;
+
+    VkCommandBuffer commandBuffer;
+
+    VkSemaphore imageAvailableSemaphore;
+
+    VkSemaphore renderFinishedSemaphore;
+
+    VkFence inFlightFence;
+
+
     // methods
     void initWindow();
 
@@ -68,6 +87,7 @@ private:
 
     void setupDebugMessenger();
 
+    void createRenderPass();
 
     VkSurfaceFormatKHR chooseSwapFormat(const std::vector<VkSurfaceFormatKHR> &availableFormats);
 
@@ -100,6 +120,18 @@ private:
     void createImageViews(); 
 
     void createGraphicsPipeline();
+
+    void createFrameBuffer();   
+
+    void createCommandPool();
+
+    void createCommandBuffer();
+
+    void createSyncObjects();
+
+    void readCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex);
+
+    void drawFrame();
 
     VkShaderModule createShaderModule(const std::vector<char> &code);
 
