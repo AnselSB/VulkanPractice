@@ -69,13 +69,16 @@ private:
 
     VkCommandPool commandPool;
 
-    VkCommandBuffer commandBuffer;
+    uint32_t currentFrame = 0;
 
-    VkSemaphore imageAvailableSemaphore;
+    // make this to be a vector so we can multiple buffers and sync objects for each frame that is written by the cpu
+    std::vector<VkCommandBuffer>commandBuffers;
 
-    VkSemaphore renderFinishedSemaphore;
+    std::vector<VkSemaphore> imageAvailableSemaphores;
 
-    VkFence inFlightFence;
+    std::vector<VkSemaphore>renderFinishedSemaphores;
+
+    std::vector<VkFence> inFlightFences;
 
 
     // methods
@@ -125,7 +128,7 @@ private:
 
     void createCommandPool();
 
-    void createCommandBuffer();
+    void createCommandBuffers();
 
     void createSyncObjects();
 
